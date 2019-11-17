@@ -53,10 +53,10 @@ public class Builder implements ContextBuilder<Object> {
 		int nodeCount = params.getInteger("node_counts");
 		HashMap<String, Process> allNodes = new HashMap<String, Process>();
 		System.out.println("Starting " + nodeCount + " nodes");
-		ActionManager manager = new ActionManager(joinProb, unJoinProb, totalRounds, nodeCount, space, allNodes, context);
+		ActionManager manager = new ActionManager(joinProb, unJoinProb, nodeCount, space, allNodes, context);
 		context.add(manager);
 		for (int i = 0; i < nodeCount; i++) {
-			Process node = new Process(space);
+			Process node = new Process();
 			allNodes.put(node.getProcessId(), node);
 			context.add(node);
 		}

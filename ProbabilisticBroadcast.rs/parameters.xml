@@ -7,13 +7,13 @@
 									
 		/>
 				<parameter name="joinprob" displayName="Join Probability (%)" type="int" 
-						defaultValue="0" 
+						defaultValue="10" 
 						isReadOnly="false" 
 						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"
 									
 		/>
 				<parameter name="unjoinprob" displayName="Unjoin Probability (%)" type="int" 
-						defaultValue="0" 
+						defaultValue="10" 
 						isReadOnly="false" 
 						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"
 									

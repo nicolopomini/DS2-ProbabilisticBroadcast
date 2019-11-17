@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,14 +12,10 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import repast.simphony.context.Context;
 import repast.simphony.engine.schedule.ScheduledMethod;
-import repast.simphony.engine.watcher.Watch;
-import repast.simphony.engine.watcher.WatcherTriggerSchedule;
 import repast.simphony.essentials.RepastEssentials;
 import repast.simphony.random.RandomHelper;
-import repast.simphony.space.continuous.ContinuousSpace;
 import repast.simphony.space.graph.Network;
 import repast.simphony.space.graph.RepastEdge;
-import repast.simphony.space.grid.Grid;
 import repast.simphony.util.ContextUtils;
 
 public class Process {
@@ -35,10 +30,9 @@ public class Process {
 	
 	private ReentrantLock functionsMutualExclusionLock;
 	
-	private ContinuousSpace<Object> space;
 	private RepastEdge<Object> lastEdge;
 	
-	public Process(Set<String> subs, Set<String> unSubs, Map<String, Process> view, Set<Event> events, List<String> eventIds, List<String> eventCreators, Set<EventElement> elementBuffer, Set<Event> generatedEvents, ContinuousSpace<Object> space) {
+	public Process(Set<String> subs, Set<String> unSubs, Map<String, Process> view, Set<Event> events, List<String> eventIds, List<String> eventCreators, Set<EventElement> elementBuffer, Set<Event> generatedEvents) {
 		this.eventIds = eventIds;
 		this.events = events;
 		this.subs = subs;
@@ -48,17 +42,16 @@ public class Process {
 		this.processId = UUID.randomUUID().toString();
 		this.generatedEvents = generatedEvents;
 		this.eventCreators = eventCreators;
-		this.space = space;
 		this.lastEdge = null;
 		this.functionsMutualExclusionLock = new ReentrantLock();
 	}
 	
-	public Process(ContinuousSpace<Object> space) {
-		this(new HashSet<>(), new HashSet<>(), new HashMap<>(), new HashSet<>(), new ArrayList<>(), new ArrayList<>(), new HashSet<>(), new HashSet<>(), space);
+	public Process() {
+		this(new HashSet<>(), new HashSet<>(), new HashMap<>(), new HashSet<>(), new ArrayList<>(), new ArrayList<>(), new HashSet<>(), new HashSet<>());
 	}
 	
-	public Process(Map<String, Process> view, ContinuousSpace<Object> space) {
-		this(new HashSet<>(), new HashSet<>(), view, new HashSet<>(), new ArrayList<>(), new ArrayList<>(), new HashSet<>(), new HashSet<>(), space);
+	public Process(Map<String, Process> view) {
+		this(new HashSet<>(), new HashSet<>(), view, new HashSet<>(), new ArrayList<>(), new ArrayList<>(), new HashSet<>(), new HashSet<>());
 	}
 	
 	public static void setParameters(int maxViewSize, int maxSubs, int maxUnsubs, int maxEvents, int maxEventIds, int gossipSize, int kRounds) {

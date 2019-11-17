@@ -7,27 +7,25 @@ import java.util.LinkedList;
 import java.util.Set;
 
 import repast.simphony.context.Context;
-import repast.simphony.engine.environment.RunEnvironment;
 import repast.simphony.engine.schedule.ScheduledMethod;
 import repast.simphony.essentials.RepastEssentials;
 import repast.simphony.random.RandomHelper;
 import repast.simphony.space.continuous.ContinuousSpace;
 
 public class ActionManager {
-	private int joinProb, unjoinProb, totalRounds, totalProcesses;
+	private int joinProb, unjoinProb, totalProcesses;
 	private ContinuousSpace<Object> space;
 	private HashMap<String, Process> allNodes;
 	private Context<Object> context;
 	private Set<Event> allEvents;
 	
-	public ActionManager(int joinProb, int unjoinProb, int totalRounds, int totalProcesses, ContinuousSpace<Object> space, HashMap<String, Process> allNodes, Context<Object> context) {
+	public ActionManager(int joinProb, int unjoinProb, int totalProcesses, ContinuousSpace<Object> space, HashMap<String, Process> allNodes, Context<Object> context) {
 		this.joinProb = joinProb;
 		this.unjoinProb = unjoinProb;
 		this.space = space;
 		this.allNodes = allNodes;
 		this.context = context;
 		this.allEvents = new HashSet<>();
-		this.totalRounds = totalRounds;
 		this.totalProcesses = totalProcesses;
 	}
 	
@@ -42,7 +40,7 @@ public class ActionManager {
 				// new node
 				HashMap<String, Process> view = new HashMap<>();
 				view.put(chosen.getProcessId(), chosen);
-				Process p = new Process(view, this.space);
+				Process p = new Process(view);
 				this.allNodes.put(p.getProcessId(), p);
 				p.setAllProcesses(this.allNodes);
 				System.out.println("Process " + p.getProcessId() + " created");
@@ -66,17 +64,18 @@ public class ActionManager {
 	public double clusteringCoefficient() {
 		double total = 0.0;
 		for (Process p: this.allNodes.values()) {
-			int count = 0, nearby = 0;
-			for (Process neighbour: p.getView().values()) {
-				if (neighbour != null) {
-					HashSet<String> neighbourhood = new HashSet<>(p.getView().keySet());
-					neighbourhood.retainAll(neighbour.getView().keySet());
-					count += neighbourhood.size();
-					nearby += 1;
+			int k = 0, sum = 0;
+			for (Process q: p.getView().values()) {
+				if (q != null) {
+					k++;
+					for (String n: q.getView().keySet()) {
+						if (p.getView().containsKey(n) && !n.equals(p.getProcessId()))
+							sum++;
+					}
 				}
 			}
-			if (nearby > 1)
-				total += (count * 1.0 / (nearby * (nearby - 1)));
+			if (k > 1)
+				total += (sum * 1.0 / (k * (k - 1)));
 		}
 		return total / this.allNodes.size();
 	}
@@ -84,17 +83,18 @@ public class ActionManager {
 	public double avgPathLength() {
 		ArrayList<String> allIds = new ArrayList<>(this.allNodes.keySet());
 		int totalLength = 0, totalConnected = 0;
-		for (int i = 0; i < allIds.size() - 1; i++) {
-			for (int j = i + 1; j < allIds.size(); j++) {
-				int dist = this.nodeDistance(allIds.get(i), allIds.get(j));
-				if (dist >= 0) {
-					System.out.println(dist);
-					totalLength += dist;
-					totalConnected += 1;
+		for (int i = 0; i < allIds.size(); i++) {
+			for (int j = 0; j < allIds.size(); j++) {
+				if (i != j) {
+					int dist = this.nodeDistance(allIds.get(i), allIds.get(j));
+					if (dist >= 0) {
+						totalLength += dist;
+						totalConnected += 1;
+					}
 				}
 			}
 		}
-		return totalConnected > 1 ? totalLength * 1.0 / (totalConnected * (totalConnected - 1)) : 0.0;
+		return totalConnected > 0 ? totalLength * 1.0 / totalConnected : 0.0;
 	}
 	
 	public double avgInDegree() {
